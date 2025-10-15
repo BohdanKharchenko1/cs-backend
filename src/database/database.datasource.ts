@@ -11,6 +11,7 @@ const envFile =
 dotenv.config({ path: envFile });
 
 const configService = new ConfigService();
+const isCompiled = __dirname.includes('dist');
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -20,8 +21,12 @@ export const AppDataSource = new DataSource({
   password: configService.get<string>('POSTGRES_PASSWORD'),
   database: configService.get<string>('POSTGRES_DB'),
   url: configService.get<string>('DATABASE_URL'),
-  entities: glob.sync(join(__dirname, '..', '..', '**', '*.entity.{ts,js}')),
-  migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
+  entities: glob.sync(
+    join(__dirname, '..', '..', '**', `*.entity.${isCompiled ? 'js' : 'ts'}`),
+  ),
+  migrations: glob.sync(
+    join(__dirname, 'migrations', `*.${isCompiled ? 'js' : 'ts'}`),
+  ),
   ssl:
     configService.get<string>('NODE_ENV') === 'local'
       ? false
