@@ -26,10 +26,10 @@ export class AuthService {
     if (!user) {
       user = this.usersRepository.create({
         telegramId: parsedData.user.id,
-        firstName: parsedData.user.firstName,
-        lastName: parsedData.user.lastName,
+        firstName: parsedData.user.first_name,
+        lastName: parsedData.user.last_name,
         username: parsedData.user.username,
-        photoUrl: parsedData.user.photoURL,
+        photoUrl: parsedData.user.photo_url,
       } as DeepPartial<User>);
     }
     await this.usersRepository.save(user);
