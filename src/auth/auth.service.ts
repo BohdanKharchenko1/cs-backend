@@ -15,7 +15,9 @@ export class AuthService {
   async validateTgUser(
     initData: string,
   ): Promise<{ token: string; user: User }> {
-    validate(initData, process.env.BOT_TOKEN!);
+    validate(initData, process.env.BOT_TOKEN!, {
+      expiresIn: 0,
+    });
     const parsedData = parse(initData);
     if (!parsedData.user) {
       throw new UnauthorizedException('Invalid User');
