@@ -3,6 +3,7 @@ import {
   Post,
   Headers,
   UnauthorizedException,
+  Body,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
@@ -11,7 +12,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post()
-  async login(@Headers('authorization') authorization?: string) {
+  async login(@Body('initData') authorization?: string) {
     if (!authorization) {
       throw new UnauthorizedException('Missing Authorization header');
     }

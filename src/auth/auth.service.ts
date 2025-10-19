@@ -16,7 +16,7 @@ export class AuthService {
     initData: string,
   ): Promise<{ token: string; user: User }> {
     validate(initData, process.env.BOT_TOKEN!, {
-      expiresIn: 0,
+      expiresIn: 0, //potom ubrat'
     });
     const parsedData = parse(initData);
     if (!parsedData.user) {
