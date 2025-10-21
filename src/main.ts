@@ -7,7 +7,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://telegram-mini-casino.vercel.app',
-      'http://localhost:3000',
+      'http://localhost:5173/',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [

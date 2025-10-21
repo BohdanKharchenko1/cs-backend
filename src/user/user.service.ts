@@ -15,26 +15,25 @@ export class UserService {
 
   async updateWallet(updateWalletDto: UpdateWalletDto) {
     const { userId, wallet } = updateWalletDto;
-
-    try {
-      this.logger.debug(
-        `Updating wallet for userId=${userId}, wallet=${wallet}`,
+    const isExisting = await this.usersRepository.findOne({
+      where: { wallet: wallet },
+    });
+    if (isExisting) {
+      await this.usersRepository.update(
+        { id: isExisting.id },
+        { wallet: null },
       );
-
-      const result = await this.usersRepository.update({ id: userId }, {
-        wallet,
-      } as DeepPartial<User>);
-
-      if (result.affected === 0) {
-        this.logger.warn(`User not found for id=${userId}`);
-        throw new Error('User not found');
-      }
-
-      this.logger.log(`Wallet updated for user ${userId}`);
-      return { success: true };
-    } catch (err) {
-      this.logger.error(`Failed to update wallet: ${err.message}`, err.stack);
-      throw err;
     }
+
+    const result = await this.usersRepository.update({ id: userId }, {
+      wallet,
+    } as DeepPartial<User>);
+
+    if (result.affected === 0) {
+      this.logger.warn(`User not found for id=${userId}`);
+      throw new Error('User not found');
+    }
+
+    return { success: true };
   }
 }

@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PaymentModule } from './payment/payment.module';
+import { TonModule } from './ton/ton.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PaymentModule } from './payment/payment.module';
     UserModule,
     AuthModule,
     PaymentModule,
+    TonModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -17,7 +17,7 @@ export class User extends BaseEntity {
   @Column('timestamptz', { default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
   @Column('varchar', { length: 255, nullable: true })
-  wallet: string;
+  wallet: string | null;
   @Column('int', { default: 0 })
   balance: number;
 }
