@@ -3,7 +3,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 @Entity('user')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
   @Column('int', { unique: true })
   telegramId: number;
   @Column('varchar', { length: 255, nullable: true })
@@ -16,4 +16,8 @@ export class User extends BaseEntity {
   photoUrl: string;
   @Column('timestamptz', { default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+  @Column('varchar', { length: 255, nullable: true })
+  wallet: string;
+  @Column('int', { default: 0 })
+  balance: number;
 }
