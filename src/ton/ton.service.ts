@@ -24,11 +24,20 @@ export class TonService {
 
     const walletAddress = transactionPayment.account_id;
     const lt = transactionPayment.lt;
+    const url = `https://testnet.tonapi.io/v2/blockchain/transactions/${walletAddress}/${lt}`;
+    this.logger.log(`Fetching transaction from TON API: ${url}`);
+    const { data } = await axios.get<TonTransaction>(url);
+    this.logger.debug(`Transaction data: ${JSON.stringify(data)}`);
+
+    const incoming = data.in_msg;
+    const amountNano = incoming?.value ? Number(incoming.value) : 0;
+    const amountTon = amountNano / 1_000_000_000;
+    const userWallet = incoming?.source;
 
     this.logger.log(`Looking for user with wallet: ${walletAddress}`);
 
     const user = await this.usersRepository.findOne({
-      where: { wallet: walletAddress },
+      where: { wallet: userWallet },
     });
 
     if (!user) {
@@ -36,17 +45,7 @@ export class TonService {
       return { success: false, reason: 'User not found' };
     }
 
-    const url = `https://testnet.tonapi.io/v2/blockchain/transactions/${walletAddress}/${lt}`;
-    this.logger.log(`Fetching transaction from TON API: ${url}`);
-
     try {
-      const { data } = await axios.get<TonTransaction>(url);
-      this.logger.debug(`Transaction data: ${JSON.stringify(data)}`);
-
-      const incoming = data.in_msg;
-      const amountNano = incoming?.value ? Number(incoming.value) : 0;
-      const amountTon = amountNano / 1_000_000_000;
-
       this.logger.log(
         `💰 Incoming amount: ${amountTon} TON from ${incoming?.source}`,
       );
