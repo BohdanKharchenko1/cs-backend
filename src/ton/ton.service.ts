@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 import { Injectable, Logger } from '@nestjs/common';
 import { User } from '../user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,10 +30,16 @@ export class TonService {
     const { data } = await axios.get<TonTransaction>(url);
     this.logger.debug(`Transaction data: ${JSON.stringify(data)}`);
 
-    const incoming = data.in_msg;
-    const amountNano = incoming?.value ? Number(incoming.value) : 0;
+    const incoming = (data as any).actions.find(
+      (a: any) =>
+        a.type === 'TonTransfer' &&
+        a.status === 'ok' &&
+        a.TonTransfer?.recipient?.address === walletAddress,
+    );
+
+    const amountNano = Number(incoming?.TonTransfer?.amount || 0);
     const amountTon = amountNano / 1_000_000_000;
-    const userWallet = incoming?.source;
+    const userWallet = incoming?.TonTransfer?.sender?.address;
 
     this.logger.log(`Looking for user with wallet: ${walletAddress}`);
 
