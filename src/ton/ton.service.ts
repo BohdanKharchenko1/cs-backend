@@ -57,7 +57,7 @@ export class TonService {
         `💰 Incoming amount: ${amountTon} TON from ${incoming?.source}`,
       );
 
-      user.balance += amountTon;
+      user.balance = Number(user.balance) + amountTon;
       await this.usersRepository.save(user);
 
       this.logger.log(
