@@ -18,6 +18,6 @@ export class User extends BaseEntity {
   createdAt: Date;
   @Column('varchar', { length: 255, nullable: true })
   wallet: string | null;
-  @Column('int', { default: 0 })
+  @Column('decimal', { precision: 18, scale: 9, default: 0 })
   balance: number;
 }
