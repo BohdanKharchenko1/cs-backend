@@ -23,7 +23,7 @@ export class TonService {
     if (!user) {
       return;
     }
-    const url = `https://tonapi.io/v2/blockchain/transactions/${walletAddress}/${lt}`;
+    const url = `https://testnet.tonapi.io/v2/blockchain/transactions/${walletAddress}/${lt}`; //pomenyat na mainnet
     const { data } = await axios.get<TonTransaction>(url);
 
     const incoming = data.in_msg;
