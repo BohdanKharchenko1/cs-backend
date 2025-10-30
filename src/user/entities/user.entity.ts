@@ -1,10 +1,17 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ReferralOptions } from './referral-options.entity';
 
 @Entity('user')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column('int', { unique: true })
+  @Column('bigint', { unique: true })
   telegramId: number;
   @Column('varchar', { length: 255, nullable: true })
   firstName: string;
@@ -20,4 +27,8 @@ export class User extends BaseEntity {
   wallet: string | null;
   @Column('decimal', { precision: 18, scale: 9, default: 0 })
   balance: number;
+  @Column('uuid', { nullable: true })
+  referrerId: string;
+  @ManyToOne(() => ReferralOptions, (ReferralOptions) => ReferralOptions.users)
+  referralOptions: ReferralOptions;
 }

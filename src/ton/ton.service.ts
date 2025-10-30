@@ -8,6 +8,7 @@ import {
   TransactionPaymentDto,
 } from './dto/transaction-payment.dto';
 import axios from 'axios';
+import { EventsGateway } from '../shared/websocket/events.gateway';
 
 @Injectable()
 export class TonService {
@@ -16,16 +17,17 @@ export class TonService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly eventsGateway: EventsGateway,
   ) {}
 
   async handlePayment(transactionPayment: TransactionPaymentDto) {
     this.logger.log(
-      `🔔 Received TON webhook: ${JSON.stringify(transactionPayment)}`,
+      `Ton webhook incoming: ${JSON.stringify(transactionPayment)}`,
     );
 
     const walletAddress = transactionPayment.account_id;
     const tx = transactionPayment.tx_hash;
-    const url = `https://testnet.tonapi.io/v2/accounts/${walletAddress}/events/${tx}`;
+    const url = `https://testnet.tonapi.io/v2/accounts/${walletAddress}/events/${tx}`; //pomenyat na mainnet
     this.logger.log(`Fetching transaction from TON API: ${url}`);
     const { data } = await axios.get<TonTransaction>(url);
     this.logger.debug(`Transaction data: ${JSON.stringify(data)}`);
@@ -59,6 +61,7 @@ export class TonService {
 
       user.balance = Number(user.balance) + amountTon;
       await this.usersRepository.save(user);
+      this.eventsGateway.sendBalanceUpdate(user.id, user.balance);
 
       this.logger.log(
         `✅ Updated balance for user ${user.id}: ${user.balance}`,
