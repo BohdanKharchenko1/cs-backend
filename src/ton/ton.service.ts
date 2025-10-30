@@ -61,6 +61,7 @@ export class TonService {
 
       user.balance = Number(user.balance) + amountTon;
       await this.usersRepository.save(user);
+
       this.eventsGateway.sendBalanceUpdate(user.id, user.balance);
 
       this.logger.log(

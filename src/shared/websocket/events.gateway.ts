@@ -14,13 +14,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
   private readonly logger = new Logger('EventsGateway');
-  private connectedUsers: Map<number, string> = new Map();
+  private connectedUsers: Map<string, string> = new Map();
 
   handleConnection(client: Socket) {
     const userId = client.handshake.query.userId as string;
     if (userId) {
       this.logger.log(`User ${userId} connected (${client.id})`);
-      this.connectedUsers.set(Number(userId), client.id);
+      this.connectedUsers.set(userId, client.id);
     }
   }
 
@@ -34,10 +34,17 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  sendBalanceUpdate(userId: number, newBalance: number) {
+  sendBalanceUpdate(userId: string, newBalance: number): void {
     const socketId = this.connectedUsers.get(userId);
-    if (socketId) {
-      this.server.to(socketId).emit('balanceUpdate', { userId, newBalance });
+    if (!socketId) {
+      this.logger.warn(`⚠️ No active socket for user ${userId}`);
+      return;
     }
+
+    this.server.to(socketId).emit('balanceUpdate', {
+      userId,
+      newBalance,
+    });
+    this.logger.log(`📤 Sent balance update to user ${userId}`);
   }
 }
