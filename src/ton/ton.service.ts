@@ -9,6 +9,8 @@ import {
 } from './dto/transaction-payment.dto';
 import axios from 'axios';
 import { EventsGateway } from '../shared/websocket/events.gateway';
+import { PaymentService } from '../payment/payment.service';
+import { TransactionType } from '../payment/enums/transaction.enums';
 
 @Injectable()
 export class TonService {
@@ -18,6 +20,7 @@ export class TonService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private readonly eventsGateway: EventsGateway,
+    private paymentService: PaymentService,
   ) {}
 
   async handlePayment(transactionPayment: TransactionPaymentDto) {
@@ -50,26 +53,28 @@ export class TonService {
     });
 
     if (!user) {
-      this.logger.warn(`❌ No user found for wallet ${walletAddress}`);
+      this.logger.warn(`No user found for wallet ${walletAddress}`);
       return { success: false, reason: 'User not found' };
     }
 
     try {
       this.logger.log(
-        `💰 Incoming amount: ${amountTon} TON from ${incoming?.source}`,
+        `Incoming amount: ${amountTon} TON from ${incoming?.source}`,
       );
 
       user.balance = Number(user.balance) + amountTon;
       await this.usersRepository.save(user);
 
       this.eventsGateway.sendBalanceUpdate(user.id, user.balance);
-
-      this.logger.log(
-        `✅ Updated balance for user ${user.id}: ${user.balance}`,
-      );
+      await this.paymentService.createTransaction({
+        amount: amountTon,
+        type: TransactionType.TOP_UP,
+        user: user,
+      });
+      this.logger.log(`Updated balance for user ${user.id}: ${user.balance}`);
       return { success: true };
     } catch (err) {
-      this.logger.error(`⚠️ TON API request failed`, err);
+      this.logger.error(`TON API request failed`, err);
       return { success: false, error: 'TON API request failed' };
     }
   }

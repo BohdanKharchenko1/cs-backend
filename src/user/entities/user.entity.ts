@@ -3,16 +3,18 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ReferralOptions } from './referral-options.entity';
+import { Transaction } from '../../payment/entities/transaction.entity';
 
 @Entity('user')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column('bigint', { unique: true })
-  telegramId: number;
+  telegramId: string;
   @Column('varchar', { length: 255, nullable: true })
   firstName: string;
   @Column('varchar', { length: 255, nullable: true })
@@ -31,4 +33,6 @@ export class User extends BaseEntity {
   referrerId: string;
   @ManyToOne(() => ReferralOptions, (ReferralOptions) => ReferralOptions.users)
   referralOptions: ReferralOptions;
+  @OneToMany(() => Transaction, (transaction) => transaction.user)
+  transactions: Transaction[];
 }

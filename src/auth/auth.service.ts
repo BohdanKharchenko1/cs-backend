@@ -21,11 +21,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid User');
     }
     let user = await this.usersRepository.findOne({
-      where: { telegramId: parsedData.user.id },
+      where: { telegramId: String(parsedData.user.id) },
     });
     if (!user) {
       user = this.usersRepository.create({
-        telegramId: parsedData.user.id,
+        telegramId: String(parsedData.user.id),
         firstName: parsedData.user.first_name,
         lastName: parsedData.user.last_name,
         username: parsedData.user.username,
