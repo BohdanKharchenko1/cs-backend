@@ -22,10 +22,10 @@
     "migration:prod:run": "NODE_ENV=production yarn typeorm migration:run -- -d ./src/shared/database/database.datasource.ts",
     "migration:test:run": "NODE_ENV=local yarn typeorm migration:run -- -d ./src/shared/database/database.datasource.ts",
     "migration:test:generate": "NODE_ENV=local yarn typeorm -- -d ./src/shared/database/database.datasource.ts migration:generate ./src/shared/database/migrations/$npm_config_name",
-    "migration:generate": "NODE_ENV=development yarn typeorm -- -d ./src/database/database.datasource.ts migration:generate ./src/database/migrations/$npm_config_name",
+    "migration:generate": "NODE_ENV=development yarn typeorm migration:generate -d src/database/database.datasource.ts ./src/database/migrations/$npm_config_name",
     "migration:prod:generate": "NODE_ENV=production yarn typeorm -- -d ./src/shared/database/database.datasource.ts migration:generate ./src/shared/database/migrations/$npm_config_name",
     "migration:create": "yarn typeorm -- migration:create ./src/shared/database/migrations/$npm_config_name",
-    "migration:revert": "NODE_ENV=development yarn typeorm -- -d ./src/shared/database/database.datasource.ts migration:revert",
+    "migration:revert": "NODE_ENV=development yarn typeorm -- -d ./src/database/database.datasource.ts migration:revert",
     "migration:prod:revert": "NODE_ENV=production yarn typeorm -- -d ./src/shared/database/database.datasource.ts migration:revert",
     "migration:test:revert": "NODE_ENV=local yarn typeorm -- -d ./src/shared/database/database.datasource.ts migration:revert",
     "migration:show": "yarn typeorm migration:show -- -d ./src/shared/database/database.config.ts",
@@ -57,7 +57,8 @@
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "typeorm": "^0.3.27"
+    "typeorm": "^0.3.27",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

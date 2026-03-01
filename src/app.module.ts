@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PaymentModule } from './payment/payment.module';
 import { TonModule } from './ton/ton.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TonModule } from './ton/ton.module';
     AuthModule,
     PaymentModule,
     TonModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [],

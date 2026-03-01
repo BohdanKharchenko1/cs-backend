@@ -37,7 +37,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   sendBalanceUpdate(userId: string, newBalance: number): void {
     const socketId = this.connectedUsers.get(userId);
     if (!socketId) {
-      this.logger.warn(`⚠️ No active socket for user ${userId}`);
+      this.logger.warn(`No active socket for user ${userId}`);
       return;
     }
 
@@ -45,6 +45,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userId,
       newBalance,
     });
-    this.logger.log(`📤 Sent balance update to user ${userId}`);
+    this.logger.log(`Sent balance update to user ${userId}`);
   }
 }

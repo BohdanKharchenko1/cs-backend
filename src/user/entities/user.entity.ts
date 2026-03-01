@@ -1,6 +1,7 @@
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -8,8 +9,9 @@ import {
 } from 'typeorm';
 import { ReferralOptions } from './referral-options.entity';
 import { Transaction } from '../../payment/entities/transaction.entity';
+import { GameParticipant } from '../../game/entities/game-participant.entity';
 
-@Entity('user')
+@Entity('users')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -23,7 +25,7 @@ export class User extends BaseEntity {
   username: string;
   @Column('varchar', { length: 255, nullable: true })
   photoUrl: string;
-  @Column('timestamptz', { default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
   @Column('varchar', { length: 255, nullable: true })
   wallet: string | null;
@@ -35,4 +37,6 @@ export class User extends BaseEntity {
   referralOptions: ReferralOptions;
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
+  @OneToMany(() => GameParticipant, (gameParticipant) => gameParticipant.user)
+  gameParticipants: GameParticipant[];
 }
