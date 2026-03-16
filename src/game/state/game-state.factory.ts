@@ -6,7 +6,9 @@ export function createInitialGameState(): GameState {
   return {
     id: uuidv4(),
     status: GameStatus.STARTED,
-    startedAt: new Date(),
-    players: [],
+    createdAt: new Date(),
+    startedAt: null,
+    finishedAt: null,
+    bets: [],
   };
 }

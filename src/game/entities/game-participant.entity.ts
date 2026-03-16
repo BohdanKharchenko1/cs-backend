@@ -20,7 +20,9 @@ export class GameParticipant extends BaseEntity {
   })
   betAmount: string;
   @Column({ type: 'bigint', nullable: true })
-  cashedOut: string | null;
+  cashedOutAmount: string | null;
+  @Column({ type: 'numeric', precision: 5, scale: 2, nullable: true })
+  cashedOutAt: string | null;
   @ManyToOne(() => Game, (game) => game.participants)
   game: Game;
   @ManyToOne(() => User, (user) => user.gameParticipants)

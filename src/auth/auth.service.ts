@@ -2,15 +2,27 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { validate, parse } from '@telegram-apps/init-data-node';
+import {
+  type InitData,
+  isValid,
+  parse,
+  validate,
+} from '@telegram-apps/init-data-node';
 import { User } from '../user/entities/user.entity';
+import { AuthSession } from './entities/auth-session.entity';
+import { UserService } from '../user/user.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(AuthSession)
+    private authSession: Repository<AuthSession>,
     private jwtService: JwtService,
+    private userService: UserService,
+    private configService: ConfigService,
   ) {}
   async validateTgUser(
     initData: string,
@@ -40,5 +52,30 @@ export class AuthService {
     });
 
     return { token, user };
+  }
+  async authInit(initData: string) {
+    //checks auth data was not tempered with
+    if (!isValid(initData, this.configService.getOrThrow('BOT_TOKEN'))) {
+      throw new UnauthorizedException('Invalid init data');
+    }
+    const parsedInitData: InitData = parse(initData);
+    // check if necessary field id is present
+    if (!parsedInitData.user?.id) {
+      throw new UnauthorizedException('Missing user id');
+    }
+    const resultUserFromDb = await this.userService.findOrCreateUser(
+      parsedInitData.user,
+    );
+
+    // returning mapped fields from db
+    return {
+      id: resultUserFromDb.id,
+      telegramId: resultUserFromDb.telegramId,
+      firstName: resultUserFromDb.firstName,
+      lastName: resultUserFromDb.lastName,
+      username: resultUserFromDb.username,
+      photoUrl: resultUserFromDb.photoUrl,
+      balance: resultUserFromDb.balance,
+    };
   }
 }

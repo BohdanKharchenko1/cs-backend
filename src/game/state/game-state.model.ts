@@ -3,11 +3,22 @@ import { GameStatus } from '../enums/game-status.enums';
 export type GameState = {
   id: string;
   status: GameStatus;
-  startedAt: Date;
-  players: Players[] | null;
+  createdAt: Date;
+  startedAt: Date | null;
+  finishedAt: Date | null;
+  bets: Bet[] | null;
 };
-type Players = {
-  username: string;
+
+export type Bet = {
+  user: User;
+  joinedAt: Date;
   betAmount: string;
-  cashedOut: string | null;
+  cashedOutAt: string | null;
+  cashedOutAmount: string | null;
+};
+
+export type User = {
+  id: string;
+  username: string;
+  photoUrl: string;
 };

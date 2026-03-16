@@ -9,5 +9,6 @@ import { ReferralOptions } from './entities/referral-options.entity';
   imports: [TypeOrmModule.forFeature([User, ReferralOptions])],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}

@@ -10,6 +10,7 @@ import {
 import { ReferralOptions } from './referral-options.entity';
 import { Transaction } from '../../payment/entities/transaction.entity';
 import { GameParticipant } from '../../game/entities/game-participant.entity';
+import { AuthSession } from '../../auth/entities/auth-session.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -39,4 +40,6 @@ export class User extends BaseEntity {
   transactions: Transaction[];
   @OneToMany(() => GameParticipant, (gameParticipant) => gameParticipant.user)
   gameParticipants: GameParticipant[];
+  @OneToMany(() => AuthSession, (authSession) => authSession.user)
+  authSessions: AuthSession[];
 }

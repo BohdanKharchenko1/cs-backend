@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { PaymentModule } from './payment/payment.module';
 import { TonModule } from './ton/ton.module';
 import { GameModule } from './game/game.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventsModule } from './shared/websocket/events.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { GameModule } from './game/game.module';
     PaymentModule,
     TonModule,
     GameModule,
+    EventEmitterModule.forRoot(),
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [],

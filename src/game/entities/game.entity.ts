@@ -1,19 +1,11 @@
-import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { GameStatus } from '../enums/game-status.enums';
 import { GameParticipant } from './game-participant.entity';
 @Entity('games')
 export class Game extends BaseEntity {
   @PrimaryColumn('string')
   id: string;
-  @CreateDateColumn({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz' })
   createdAt: Date;
   @Column({ type: 'timestamptz', nullable: true, default: null })
   startedAt: Date;
