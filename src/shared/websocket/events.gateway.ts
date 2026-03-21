@@ -39,7 +39,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 */
-  async handleConnection(client: Socket) {
+  async handleConnection(client: socketTypes.AppSocket) {
     //treat auth.initData as unknown and then narrow the type to string to proceed with auth
     const handshakeAuth = client.handshake.auth as Record<string, unknown>;
     const initData = handshakeAuth.initData;
@@ -50,6 +50,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     const checkedUser = await this.authService.authInit(initData);
 
+    client.data.userId = checkedUser.id;
     //finding if user has a set with connected sockets, if not we create a new set with socket id
     let connectedSockets = this.connectedUsers.get(checkedUser.id);
 

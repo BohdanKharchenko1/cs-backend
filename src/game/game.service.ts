@@ -1,24 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Game } from './entities/game.entity';
-import { Repository } from 'typeorm';
-import { GameParticipant } from './entities/game-participant.entity';
-import { GameState } from './state/game-state.model';
 import { createInitialGameState } from './state/game-state.factory';
+import { GameState } from './state/game-state.model';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PlaceBetInput } from './dto/in/place-bet';
+import { UserService } from '../user/user.service';
+import { GameStatus } from './enums/game-status.enums';
 
 @Injectable()
 export class GameService {
-  private gameState: GameState = createInitialGameState();
+  gameState: GameState = createInitialGameState();
+
   constructor(
-    @InjectRepository(Game) private readonly gameRepository: Repository<Game>,
-    @InjectRepository(GameParticipant)
-    private readonly gameParticipantRepository: Repository<GameParticipant>,
+    private eventEmitter: EventEmitter2,
+    private userService: UserService,
   ) {}
 
-  createNewGame() {
-    return (this.gameState = createInitialGameState());
+  broadcastStateSync() {
+    this.eventEmitter.emit('state_sync', this.gameState);
   }
-  getGameState() {
+
+  getStateSnapshot() {
     return this.gameState;
+  }
+
+  async placeBet(bet: PlaceBetInput) {
+    if (this.gameState.status !== GameStatus.STARTED) {
+      return new Error('Cannot place a bet if the game has already started');
+    }
+    const user = await this.userService.findUserById(bet.user.id);
+    if (!user) {
+      return new Error('User not found');
+    }
   }
 }
