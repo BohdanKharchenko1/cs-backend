@@ -6,7 +6,7 @@ export type GameState = {
   createdAt: Date;
   startedAt: Date | null;
   finishedAt: Date | null;
-  bets: Bet[] | null;
+  bets: Bet[];
 };
 
 export type Bet = {

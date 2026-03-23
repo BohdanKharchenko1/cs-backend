@@ -7,8 +7,8 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { Logger, UnauthorizedException } from '@nestjs/common';
+import { Server } from 'socket.io';
+import { UnauthorizedException } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import type { GameState } from '../../game/state/game-state.model';
 import { GameService } from '../../game/game.service';
@@ -21,11 +21,12 @@ import * as socketTypes from './socket.types';
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
-  private readonly logger = new Logger('EventsGateway');
   private connectedUsers: Map<string, Set<string>> = new Map();
-  private authService: AuthService;
 
-  constructor(private gameService: GameService) {}
+  constructor(
+    private gameService: GameService,
+    private authService: AuthService,
+  ) {}
 
   /*
   handleConnection(client: Socket) {
@@ -85,7 +86,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('place_bet')
-  handleBet(
+  async handleBet(
     @MessageBody('bet_amount') betAmount: string,
     @ConnectedSocket() client: socketTypes.AppSocket,
   ) {
@@ -94,6 +95,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!userId) {
       throw new UnauthorizedException('Missing auth context');
     }
+
+    const placeBetInput = {
+      userId,
+      betAmount,
+    };
+
+    await this.gameService.placeBet(placeBetInput);
   }
 
   /*

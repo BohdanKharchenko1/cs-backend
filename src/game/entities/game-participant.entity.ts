@@ -16,13 +16,20 @@ export class GameParticipant extends BaseEntity {
   @CreateDateColumn({ type: 'timestamptz' })
   joinedAt: Date;
   @Column({
-    type: 'bigint',
+    type: 'numeric',
+    precision: 18,
+    scale: 9,
   })
   betAmount: string;
-  @Column({ type: 'bigint', nullable: true })
+  @Column({
+    type: 'numeric',
+    precision: 18,
+    scale: 9,
+    nullable: true,
+  })
   cashedOutAmount: string | null;
   @Column({ type: 'numeric', precision: 5, scale: 2, nullable: true })
-  cashedOutAt: string | null;
+  cashedOutMultiplier: string | null;
   @ManyToOne(() => Game, (game) => game.participants)
   game: Game;
   @ManyToOne(() => User, (user) => user.gameParticipants)
