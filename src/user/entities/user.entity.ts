@@ -31,7 +31,7 @@ export class User extends BaseEntity {
   @Column('varchar', { length: 255, nullable: true })
   wallet: string | null;
   @Column('decimal', { precision: 18, scale: 9, default: 0 })
-  balance: number;
+  balance: string;
   @Column('uuid', { nullable: true })
   referrerId: string;
   @ManyToOne(() => ReferralOptions, (ReferralOptions) => ReferralOptions.users)
