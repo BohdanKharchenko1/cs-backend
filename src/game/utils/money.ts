@@ -1,6 +1,7 @@
 export function parseMoney(value: string): bigint {
   const splitString: string[] = value.split('.');
   const integerPart = splitString[0];
+  const regex: RegExp = /^\d+(\.\d+)?$/;
   let decimalPart = splitString[1] ?? '';
 
   /**
@@ -8,6 +9,9 @@ export function parseMoney(value: string): bigint {
    * the string came in like this 123.123.123 which is wrong
    * we check for all possible edge cases here
    */
+  if (!regex.test(value)) {
+    throw new Error('Invalid value money format');
+  }
   if (splitString.length > 2) {
     throw new Error('Split string has >=3 string in array ');
   }
@@ -29,14 +33,7 @@ export function parseMoney(value: string): bigint {
 
   return BigInt(combinedMoney);
 }
-export function isValidMoney(value: string): boolean {
-  const money = BigInt(value);
 
-  if (money <= 0n) {
-    throw new Error(`Invalid money type ${money}`);
-  }
-  return true;
-}
 export function compareMoney(a: string, b: string): number {
   const firstField = parseMoney(a);
   const secondField = parseMoney(b);
@@ -44,4 +41,21 @@ export function compareMoney(a: string, b: string): number {
   if (firstField < secondField) return -1;
   else if (firstField > secondField) return 1;
   else return 0;
+}
+
+export function subtractMoney(a: string, b: string): string {
+  const firstField = parseMoney(a);
+  const secondField = parseMoney(b);
+
+  const subtractionResult = firstField - secondField;
+  const isNegative = subtractionResult < 0n;
+  const absoluteResult = isNegative ? -subtractionResult : subtractionResult;
+
+  const raw = absoluteResult.toString().padStart(10, '0');
+  const integerPart = raw.slice(0, -9).replace(/^0+(?=\d)/, '');
+  const decimalPart = raw.slice(-9).replace(/0+$/, '');
+
+  const formatted = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+
+  return isNegative ? `-${formatted}` : formatted;
 }
