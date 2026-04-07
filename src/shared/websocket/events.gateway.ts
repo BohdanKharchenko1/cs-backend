@@ -103,6 +103,15 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     await this.gameService.placeBet(placeBetInput);
   }
+  @SubscribeMessage('cashout')
+  async handleCashOut(@ConnectedSocket() client: socketTypes.AppSocket) {
+    const userId = client.data.userId;
+
+    if (!userId) {
+      throw new UnauthorizedException('Missing auth context');
+    }
+    await this.gameService.cashout(userId);
+  }
 
   /*
   sendBalanceUpdate(userId: string, newBalance: number): void {
