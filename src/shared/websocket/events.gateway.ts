@@ -8,12 +8,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { UnauthorizedException } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import type { GameState } from '../../game/state/game-state.model';
 import { GameService } from '../../game/game.service';
 import { AuthService } from '../../auth/auth.service';
 import * as socketTypes from './socket.types';
+import { wsError } from './ws-errors';
 
 @WebSocketGateway({
   cors: { origin: 'https://telegram-mini-casino.vercel.app' },
@@ -47,7 +47,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     //narrowing to safely treat as string
     if (typeof initData !== 'string' || initData.length === 0) {
-      throw new UnauthorizedException('Invalid initData');
+      throw wsError.unauthorized();
     }
     const checkedUser = await this.authService.authInit(initData);
 
@@ -93,7 +93,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = client.data.userId;
 
     if (!userId) {
-      throw new UnauthorizedException('Missing auth context');
+      throw wsError.unauthorized();
     }
 
     const placeBetInput = {
@@ -108,7 +108,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId = client.data.userId;
 
     if (!userId) {
-      throw new UnauthorizedException('Missing auth context');
+      throw wsError.unauthorized();
     }
     await this.gameService.cashout(userId);
   }

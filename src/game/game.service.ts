@@ -12,7 +12,7 @@ import { Repository } from 'typeorm';
 import { GameParticipant } from './entities/game-participant.entity';
 import { AppDataSource } from '../database/database.datasource';
 import { User } from '../user/entities/user.entity';
-
+import { wsError } from '../shared/websocket/ws-errors';
 @Injectable()
 export class GameService {
   gameState: GameState = createInitialGameState();
@@ -36,7 +36,7 @@ export class GameService {
 
   async placeBet(placeBetInput: PlaceBetInput): Promise<void> {
     if (this.gameState.status !== GameStatus.STARTED) {
-      throw new Error('Cannot place a bet if the game has already started');
+      throw wsError.gameNotAcceptingBets();
     }
     const currentGame = await this.gameRepository.findOne({
       where: { id: this.gameState.id },
@@ -44,7 +44,7 @@ export class GameService {
     let constructedBet: Bet | null = null;
 
     if (!currentGame) {
-      throw new Error('Game not found');
+      throw wsError.gameNotFound();
     }
 
     await AppDataSource.transaction(async (transactionalEntityManager) => {
@@ -54,10 +54,10 @@ export class GameService {
       });
 
       if (!user) {
-        throw new Error('User not found');
+        throw wsError.userNotFound();
       }
       if (compareMoney(user.balance, placeBetInput.betAmount) === -1) {
-        throw new Error('The user balance is lower than the bet');
+        throw wsError.insufficientBalance();
       }
 
       user.balance = subtractMoney(user.balance, placeBetInput.betAmount);
@@ -87,14 +87,14 @@ export class GameService {
     });
 
     if (!constructedBet) {
-      throw new Error('Cannot place a bet');
+      throw wsError.constructedBetMissing();
     }
 
     this.gameState.bets = [...this.gameState.bets, constructedBet];
 
     this.broadcastStateSync();
   }
-  async cashout(cashoutInput: CashoutInput): Promise<void> {
+  async cashout(userId: string): Promise<void> {
     if (this.gameState.status !== GameStatus.IN_PROGRESS) {
       throw new Error('Cannot cashout if the game isnt running');
     }
