@@ -31,6 +31,24 @@ export const wsError = {
       message: 'Insufficient balance',
     }),
 
+  gameNotRunning: () =>
+    new WsException({
+      code: 'GAME_NOT_RUNNING',
+      message: 'Game is not running',
+    }),
+
+  betNotFound: () =>
+    new WsException({
+      code: 'BET_NOT_FOUND',
+      message: 'Bet not found',
+    }),
+
+  betExists: () =>
+    new WsException({
+      code: 'BET_EXISTS',
+      message: 'Bet exists',
+    }),
+
   constructedBetMissing: () =>
     new WsException({
       code: 'CONSTRUCTED_BET_MISSING',

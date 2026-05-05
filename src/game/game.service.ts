@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { createInitialGameState } from './state/game-state.factory';
 import { Bet, GameState } from './state/game-state.model';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { CashoutInput, PlaceBetInput } from './dto/in/place-bet';
+import { PlaceBetInput } from './dto/in/place-bet';
 import { UserService } from '../user/user.service';
 import { GameStatus } from './enums/game-status.enums';
 import { compareMoney, subtractMoney } from './utils/money';
@@ -38,6 +38,14 @@ export class GameService {
     if (this.gameState.status !== GameStatus.STARTED) {
       throw wsError.gameNotAcceptingBets();
     }
+    const betExists = this.gameState.bets.some(
+      (bet) => bet.user.id === placeBetInput.userId,
+    );
+
+    if (betExists) {
+      throw wsError.betExists();
+    }
+
     const currentGame = await this.gameRepository.findOne({
       where: { id: this.gameState.id },
     });
@@ -96,7 +104,12 @@ export class GameService {
   }
   async cashout(userId: string): Promise<void> {
     if (this.gameState.status !== GameStatus.IN_PROGRESS) {
-      throw new Error('Cannot cashout if the game isnt running');
+      throw wsError.gameNotRunning();
+    }
+    const bet = this.gameState.bets.find((bet) => bet.user.id === userId);
+
+    if (!bet) {
+      throw wsError.betNotFound();
     }
   }
 }
