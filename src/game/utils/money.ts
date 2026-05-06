@@ -48,10 +48,26 @@ export function subtractMoney(a: string, b: string): string {
   const secondField = parseMoney(b);
 
   const subtractionResult = firstField - secondField;
-  const isNegative = subtractionResult < 0n;
-  const absoluteResult = isNegative ? -subtractionResult : subtractionResult;
 
-  const raw = absoluteResult.toString().padStart(10, '0');
+  return formatMoney(subtractionResult);
+}
+export function multiplyMoneyByCoefficient(
+  coefficient: number,
+  money: string,
+): string {
+  const moneyBigint = parseMoney(money);
+  const coefficientBigint = BigInt(coefficient);
+
+  const multiplyResult = coefficientBigint * moneyBigint;
+  return formatMoney(multiplyResult);
+}
+
+function formatMoney(value: bigint): string {
+  const isNegative = value < 0n;
+  const absoluteValue = isNegative ? -value : value;
+
+  const raw = absoluteValue.toString().padStart(10, '0');
+
   const integerPart = raw.slice(0, -9).replace(/^0+(?=\d)/, '');
   const decimalPart = raw.slice(-9).replace(/0+$/, '');
 
