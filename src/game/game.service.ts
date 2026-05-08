@@ -5,7 +5,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PlaceBetInput } from './dto/in/place-bet';
 import { UserService } from '../user/user.service';
 import { GameStatus } from './enums/game-status.enums';
-import { compareMoney, subtractMoney } from './utils/money';
+import {
+  addMoney,
+  compareMoney,
+  multiplyMoneyByCoefficient,
+  subtractMoney,
+} from './utils/money';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Game } from './entities/game.entity';
 import { Repository } from 'typeorm';
@@ -102,6 +107,7 @@ export class GameService {
 
     this.broadcastStateSync();
   }
+
   async cashout(userId: string): Promise<void> {
     if (this.gameState.status !== GameStatus.IN_PROGRESS) {
       throw wsError.gameNotRunning();
@@ -111,5 +117,58 @@ export class GameService {
     if (!bet) {
       throw wsError.betNotFound();
     }
+
+    const coefficient = this.gameState.coefficient;
+
+    const cashedOutAmount = multiplyMoneyByCoefficient(
+      coefficient,
+      bet.betAmount,
+    );
+
+    await AppDataSource.transaction(async (transactionalEntityManager) => {
+      const user = await transactionalEntityManager.findOne(User, {
+        where: { id: userId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!user) {
+        throw wsError.userNotFound();
+      }
+
+      const game = await transactionalEntityManager.findOne(Game, {
+        where: { id: this.gameState.id },
+      });
+      if (!game) {
+        throw wsError.gameNotFound();
+      }
+
+      const gameParticipant = await transactionalEntityManager.findOne(
+        GameParticipant,
+        {
+          where: { user: user, game: game },
+          lock: { mode: 'pessimistic_write' },
+        },
+      );
+
+      if (!gameParticipant) {
+        throw wsError.gameParticipantNotFound();
+      }
+      if (
+        gameParticipant.cashedOutAmount ||
+        gameParticipant.cashedOutMultiplier
+      ) {
+        throw wsError.betCashedOut();
+      }
+
+      gameParticipant.cashedOutMultiplier = coefficient;
+      gameParticipant.cashedOutAmount = cashedOutAmount;
+      user.balance = addMoney(user.balance, cashedOutAmount);
+
+      await transactionalEntityManager.save(gameParticipant);
+      await transactionalEntityManager.save(user);
+    });
+    bet.cashedOutAt = coefficient;
+    bet.cashedOutAmount = cashedOutAmount;
+
+    this.broadcastStateSync();
   }
 }
