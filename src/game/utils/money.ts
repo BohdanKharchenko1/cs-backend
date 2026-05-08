@@ -47,10 +47,16 @@ export function subtractMoney(a: string, b: string): string {
   const firstField = parseMoney(a);
   const secondField = parseMoney(b);
 
-  const subtractionResult = firstField - secondField;
-
-  return formatMoney(subtractionResult);
+  return formatMoney(firstField - secondField);
 }
+
+export function addMoney(a: string, b: string): string {
+  const firstField = parseMoney(a);
+  const secondField = parseMoney(b);
+
+  return formatMoney(firstField + secondField);
+}
+
 export function multiplyMoneyByCoefficient(
   coefficient: number,
   money: string,
