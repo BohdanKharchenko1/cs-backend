@@ -18,7 +18,11 @@ export const wsError = {
       code: 'GAME_NOT_FOUND',
       message: 'Game not found',
     }),
-
+  gameParticipantNotFound: () =>
+    new WsException({
+      code: 'GAME_PARTICIPANT_NOT_FOUND',
+      message: 'Game participant not found',
+    }),
   gameNotAcceptingBets: () =>
     new WsException({
       code: 'GAME_NOT_ACCEPTING_BETS',
@@ -47,6 +51,12 @@ export const wsError = {
     new WsException({
       code: 'BET_EXISTS',
       message: 'Bet exists',
+    }),
+
+  betCashedOut: () =>
+    new WsException({
+      code: 'BET_CASHED_OUT',
+      message: 'Bet has already been cashed',
     }),
 
   constructedBetMissing: () =>

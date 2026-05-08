@@ -6,6 +6,7 @@ export function createInitialGameState(): GameState {
     id: crypto.randomUUID(),
     status: GameStatus.STARTED,
     createdAt: new Date(),
+    coefficient: 1.0,
     startedAt: null,
     finishedAt: null,
     bets: [],

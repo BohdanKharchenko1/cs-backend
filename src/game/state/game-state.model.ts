@@ -4,6 +4,7 @@ export type GameState = {
   id: string;
   status: GameStatus;
   createdAt: Date;
+  coefficient: number;
   startedAt: Date | null;
   finishedAt: Date | null;
   bets: Bet[];
@@ -13,7 +14,7 @@ export type Bet = {
   user: User;
   joinedAt: Date;
   betAmount: string;
-  cashedOutAt: string | null;
+  cashedOutAt: number | null;
   cashedOutAmount: string | null;
 };
 
