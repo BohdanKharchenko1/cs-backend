@@ -11,7 +11,11 @@ export class Game extends BaseEntity {
   startedAt: Date;
   @Column({ type: 'timestamptz', nullable: true, default: null })
   finishedAt: Date;
-  @Column({ type: 'enum', enum: GameStatus, default: GameStatus.STARTED })
+  @Column({
+    type: 'enum',
+    enum: GameStatus,
+    default: GameStatus.WAITING_FOR_PLAYERS,
+  })
   status: GameStatus;
   @OneToMany(() => GameParticipant, (gameParticipant) => gameParticipant.game)
   participants: GameParticipant[];

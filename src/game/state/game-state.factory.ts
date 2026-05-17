@@ -4,7 +4,7 @@ import { GameStatus } from '../enums/game-status.enums';
 export function createInitialGameState(): GameState {
   return {
     id: crypto.randomUUID(),
-    status: GameStatus.STARTED,
+    status: GameStatus.WAITING_FOR_PLAYERS,
     createdAt: new Date(),
     coefficient: 1.0,
     startedAt: null,

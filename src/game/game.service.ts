@@ -40,7 +40,10 @@ export class GameService {
   }
 
   async placeBet(placeBetInput: PlaceBetInput): Promise<void> {
-    if (this.gameState.status !== GameStatus.STARTED) {
+    if (
+      this.gameState.status !== GameStatus.WAITING_FOR_PLAYERS &&
+      this.gameState.status !== GameStatus.BETTING_WAITING
+    ) {
       throw wsError.gameNotAcceptingBets();
     }
     const betExists = this.gameState.bets.some(
@@ -168,6 +171,11 @@ export class GameService {
     });
     bet.cashedOutAt = coefficient;
     bet.cashedOutAmount = cashedOutAmount;
+
+    this.broadcastStateSync();
+  }
+  setGameStatus(status: GameStatus) {
+    this.gameState.status = status;
 
     this.broadcastStateSync();
   }
