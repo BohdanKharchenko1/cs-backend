@@ -8,6 +8,7 @@ export class GameLoopService {
   private readonly bettingDelay: number;
   private readonly minimumPlayers: number;
   private bettingTimer: NodeJS.Timeout | null = null;
+  private crashTimer: NodeJS.Timeout | null = null;
   constructor(
     private readonly gameService: GameService,
     private readonly configService: ConfigService,
@@ -36,5 +37,18 @@ export class GameLoopService {
 
     this.gameService.setGameStatus(GameStatus.IN_PROGRESS);
     this.bettingTimer = null;
+  }
+  startCrashTimer(crashTime: number) {
+    this.crashTimer = setTimeout(() => {
+      this.crashTimer = null;
+      this.gameService.crashed();
+    }, crashTime);
+  }
+  startCoefficientUpdates() {
+    let coefficient = 1.0;
+    setInterval(() => {
+      coefficient += 0.1;
+      this.gameService.sendCoefficientUpdate(coefficient);
+    }, 100);
   }
 }
