@@ -7,14 +7,17 @@ import { GameStatus } from './enums/game-status.enums';
 export class GameLoopService {
   private readonly bettingDelay: number;
   private readonly minimumPlayers: number;
+  private readonly crashedDelay: number;
   private bettingTimer: NodeJS.Timeout | null = null;
   private crashTimer: NodeJS.Timeout | null = null;
+  private coefficientTimer: NodeJS.Timeout | null = null;
   constructor(
     private readonly gameService: GameService,
     private readonly configService: ConfigService,
   ) {
     this.bettingDelay = configService.getOrThrow('BETTING_DELAY');
     this.minimumPlayers = configService.getOrThrow('MINIMUM_PLAYERS');
+    this.crashedDelay = configService.getOrThrow('CRASHED_DELAY');
   }
   startBettingCountdownIfNeeded() {
     const gameState = this.gameService.getStateSnapshot();
@@ -26,29 +29,44 @@ export class GameLoopService {
     this.gameService.setGameStatus(GameStatus.BETTING_WAITING);
 
     this.bettingTimer = setTimeout(
-      () => this.handleBettingCountdownFinished(),
+      () => this.startBettingCountdownFinished(),
       this.bettingDelay,
     );
   }
-  handleBettingCountdownFinished() {
+  startBettingCountdownFinished() {
     const gameState = this.gameService.getStateSnapshot();
 
     if (gameState.status !== GameStatus.BETTING_WAITING) return;
 
     this.gameService.setGameStatus(GameStatus.IN_PROGRESS);
     this.bettingTimer = null;
+
+    //need an update later - use actual generated time crash time
+    this.startCrashTimer(100);
+    this.startCoefficientUpdates();
   }
   startCrashTimer(crashTime: number) {
     this.crashTimer = setTimeout(() => {
       this.crashTimer = null;
-      this.gameService.crashed();
+      this.startCrashedPhase();
     }, crashTime);
   }
   startCoefficientUpdates() {
     let coefficient = 1.0;
-    setInterval(() => {
+    this.coefficientTimer = setInterval(() => {
+      this.gameService.updateCoefficient(coefficient);
       coefficient += 0.1;
-      this.gameService.sendCoefficientUpdate(coefficient);
-    }, 100);
+    }, 100); // rewrite later to find the best update time
+  }
+  startCrashedPhase() {
+    if (this.coefficientTimer) {
+      clearInterval(this.coefficientTimer);
+      this.coefficientTimer = null;
+    }
+    this.gameService.setGameStatus(GameStatus.ENDED);
+
+    setTimeout(() => {
+      this.gameService.restartGame();
+    }, this.crashedDelay);
   }
 }

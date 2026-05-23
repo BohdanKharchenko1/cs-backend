@@ -10,13 +10,13 @@ import {
 import { Server } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
 import type { GameState } from '../../game/state/game-state.model';
-import { GameService } from '../../game/game.service';
 import { AuthService } from '../../auth/auth.service';
 import * as socketTypes from './socket.types';
 import { wsError } from './ws-errors';
+import { GameRuntimeService } from '../../game/game-runtime.service';
 
 @WebSocketGateway({
-  cors: { origin: 'https://telegram-mini-casino.vercel.app' },
+  cors: { origin: 'https://telegram-mini-casino.vercel.app' }, //change to env
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -24,8 +24,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private connectedUsers: Map<string, Set<string>> = new Map();
 
   constructor(
-    private gameService: GameService,
-    private authService: AuthService,
+    private readonly gameRuntimeService: GameRuntimeService,
+    private readonly authService: AuthService,
   ) {}
 
   /*
@@ -67,7 +67,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //send current state_snapshot to the newly connected session
     this.server
       .to(client.id)
-      .emit('state_snapshot', this.gameService.getStateSnapshot());
+      .emit('state_snapshot', this.gameRuntimeService.getStateSnapshot());
   }
 
   handleDisconnect(client: socketTypes.AppSocket) {
@@ -101,7 +101,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       betAmount,
     };
 
-    await this.gameService.placeBet(placeBetInput);
+    await this.gameRuntimeService.placeBet(placeBetInput);
   }
   @SubscribeMessage('cashout')
   async handleCashOut(@ConnectedSocket() client: socketTypes.AppSocket) {
@@ -110,7 +110,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!userId) {
       throw wsError.unauthorized();
     }
-    await this.gameService.cashout(userId);
+    await this.gameRuntimeService.cashout(userId);
   }
 
   /*
@@ -130,9 +130,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   */
 
   //send snapshot of the current game state to all connected users( happens when someone make a bet, cashout etc...) temporary solution i might change it later
-  //needs to be removed to fulfil my design model - dont want circular dependency
+  //needs redesign because of naming and whole updates instead of what changed
   @OnEvent('state_sync')
-  sendSnapshot(gameState: GameState) {
+  sendStateSync(gameState: GameState) {
     this.server.emit('state_sync', gameState);
+  }
+  @OnEvent('coefficient_sync')
+  sendCoefficientUpdate(coefficient: number) {
+    this.server.emit('coefficient_sync', coefficient);
   }
 }

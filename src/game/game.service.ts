@@ -179,4 +179,12 @@ export class GameService {
 
     this.broadcastStateSync();
   }
+  updateCoefficient(coefficient: number) {
+    this.gameState.coefficient = coefficient;
+    this.eventEmitter.emit('coefficient_sync', coefficient);
+  }
+  restartGame() {
+    this.gameState = createInitialGameState();
+    this.broadcastStateSync();
+  }
 }

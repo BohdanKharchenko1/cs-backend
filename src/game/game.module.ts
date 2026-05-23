@@ -6,10 +6,11 @@ import { Game } from './entities/game.entity';
 import { GameService } from './game.service';
 import { UserModule } from '../user/user.module';
 import { GameLoopService } from './game-loop.service';
+import { GameRuntimeService } from './game-runtime.service';
 
 @Module({
   controllers: [GameController],
-  providers: [GameService, GameLoopService, GameLoopService],
+  providers: [GameService, GameLoopService, GameRuntimeService],
   imports: [TypeOrmModule.forFeature([Game, GameParticipant]), UserModule],
 })
 export class GameModule {}
