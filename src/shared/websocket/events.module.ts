@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { GameRuntimeService } from '../../game/game-runtime.service';
+import { GameModule } from '../../game/game.module';
 
 @Module({
-  imports: [GameRuntimeService],
+  imports: [GameModule],
 })
 export class EventsModule {}
