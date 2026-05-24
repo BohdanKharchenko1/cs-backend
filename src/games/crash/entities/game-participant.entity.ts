@@ -7,9 +7,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Game } from './game.entity';
-import { User } from '../../user/entities/user.entity';
+import { User } from '../../../user/entities/user.entity';
 
-@Entity('game-participants')
+@Entity('games-participants')
 export class GameParticipant extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { ReferralOptions } from './referral-options.entity';
 import { Transaction } from '../../payment/entities/transaction.entity';
-import { GameParticipant } from '../../game/entities/game-participant.entity';
+import { GameParticipant } from '../../games/crash/entities/game-participant.entity';
 import { AuthSession } from '../../auth/entities/auth-session.entity';
 
 @Entity('users')

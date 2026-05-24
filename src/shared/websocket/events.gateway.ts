@@ -9,11 +9,11 @@ import {
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
-import type { GameState } from '../../game/state/game-state.model';
+import type { GameState } from '../../games/crash/state/game-state.model';
 import { AuthService } from '../../auth/auth.service';
 import * as socketTypes from './socket.types';
 import { wsError } from './ws-errors';
-import { GameRuntimeService } from '../../game/game-runtime.service';
+import { GameRuntimeService } from '../../games/crash/game-runtime.service';
 
 @WebSocketGateway({
   cors: { origin: 'https://telegram-mini-casino.vercel.app' }, //change to env
@@ -129,7 +129,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   */
 
-  //send snapshot of the current game state to all connected users( happens when someone make a bet, cashout etc...) temporary solution i might change it later
+  //send snapshot of the current games state to all connected users( happens when someone make a bet, cashout etc...) temporary solution i might change it later
   //needs redesign because of naming and whole updates instead of what changed
   @OnEvent('state_sync')
   sendStateSync(gameState: GameState) {

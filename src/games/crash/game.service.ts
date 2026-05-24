@@ -3,7 +3,7 @@ import { createInitialGameState } from './state/game-state.factory';
 import { Bet, GameState } from './state/game-state.model';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PlaceBetInput } from './dto/in/place-bet';
-import { UserService } from '../user/user.service';
+import { UserService } from '../../user/user.service';
 import { GameStatus } from './enums/game-status.enums';
 import {
   addMoney,
@@ -15,9 +15,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Game } from './entities/game.entity';
 import { Repository } from 'typeorm';
 import { GameParticipant } from './entities/game-participant.entity';
-import { AppDataSource } from '../database/database.datasource';
-import { User } from '../user/entities/user.entity';
-import { wsError } from '../shared/websocket/ws-errors';
+import { AppDataSource } from '../../database/database.datasource';
+import { User } from '../../user/entities/user.entity';
+import { wsError } from '../../shared/websocket/ws-errors';
 @Injectable()
 export class GameService {
   gameState: GameState = createInitialGameState();
