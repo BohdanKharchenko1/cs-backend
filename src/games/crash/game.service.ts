@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { createInitialGameState } from './state/game-state.factory';
 import { Bet, GameState } from './state/game-state.model';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PlaceBetInput } from './dto/in/place-bet';
+import { PlaceBetInput } from './types/place-bet';
 import { UserService } from '../../user/user.service';
 import { GameStatus } from './enums/game-status.enums';
 import {

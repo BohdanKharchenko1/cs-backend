@@ -10,14 +10,15 @@ export class GameLoopService {
   private readonly crashedDelay: number;
   private bettingTimer: NodeJS.Timeout | null = null;
   private crashTimer: NodeJS.Timeout | null = null;
+  private crashedTimer: NodeJS.Timeout | null = null;
   private coefficientTimer: NodeJS.Timeout | null = null;
   constructor(
     private readonly gameService: GameService,
     private readonly configService: ConfigService,
   ) {
-    this.bettingDelay = configService.getOrThrow('BETTING_DELAY');
-    this.minimumPlayers = configService.getOrThrow('MINIMUM_PLAYERS');
-    this.crashedDelay = configService.getOrThrow('CRASHED_DELAY');
+    this.bettingDelay = Number(configService.getOrThrow('BETTING_DELAY'));
+    this.minimumPlayers = Number(configService.getOrThrow('MINIMUM_PLAYERS'));
+    this.crashedDelay = Number(configService.getOrThrow('CRASHED_DELAY'));
   }
   startBettingCountdownIfNeeded() {
     const gameState = this.gameService.getStateSnapshot();
@@ -65,8 +66,9 @@ export class GameLoopService {
     }
     this.gameService.setGameStatus(GameStatus.ENDED);
 
-    setTimeout(() => {
+    this.crashedTimer = setTimeout(() => {
       this.gameService.restartGame();
+      this.crashTimer = null;
     }, this.crashedDelay);
   }
 }

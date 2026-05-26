@@ -1,6 +1,6 @@
 import { GameService } from './game.service';
 import { GameLoopService } from './game-loop.service';
-import { PlaceBetInput } from './dto/in/place-bet';
+import { PlaceBetInput } from './types/place-bet';
 import { Injectable } from '@nestjs/common';
 import { GameState } from './state/game-state.model';
 

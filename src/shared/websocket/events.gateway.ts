@@ -14,6 +14,7 @@ import { AuthService } from '../../auth/auth.service';
 import * as socketTypes from './socket.types';
 import { wsError } from './ws-errors';
 import { GameRuntimeService } from '../../games/crash/game-runtime.service';
+import { PlaceBetMessageDto } from '../../games/crash/dto/place-bet-message.dto';
 
 @WebSocketGateway({
   cors: { origin: 'https://telegram-mini-casino.vercel.app' }, //change to env
@@ -87,7 +88,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('place_bet')
   async handleBet(
-    @MessageBody('bet_amount') betAmount: string,
+    @MessageBody() payload: PlaceBetMessageDto,
     @ConnectedSocket() client: socketTypes.AppSocket,
   ) {
     const userId = client.data.userId;
@@ -98,7 +99,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const placeBetInput = {
       userId,
-      betAmount,
+      betAmount: payload.betAmount,
     };
 
     await this.gameRuntimeService.placeBet(placeBetInput);
