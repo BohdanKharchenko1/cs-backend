@@ -8,9 +8,9 @@ export class Game extends BaseEntity {
   @Column({ type: 'timestamptz' })
   createdAt: Date;
   @Column({ type: 'timestamptz', nullable: true, default: null })
-  startedAt: Date;
+  startedAt: Date | null;
   @Column({ type: 'timestamptz', nullable: true, default: null })
-  finishedAt: Date;
+  finishedAt: Date | null;
   @Column({
     type: 'enum',
     enum: GameStatus,

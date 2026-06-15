@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { createInitialGameState } from './state/game-state.factory';
 import { Bet, GameState } from './state/game-state.model';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -18,9 +18,11 @@ import { GameParticipant } from './entities/game-participant.entity';
 import { AppDataSource } from '../../database/database.datasource';
 import { User } from '../../user/entities/user.entity';
 import { wsError } from '../../shared/websocket/ws-errors';
+import { mapGameStateToGameUpdate } from './mappers/game-state.mapper';
+
 @Injectable()
-export class GameService {
-  gameState: GameState = createInitialGameState();
+export class GameService implements OnModuleInit {
+  gameState: GameState;
 
   constructor(
     private eventEmitter: EventEmitter2,
@@ -38,7 +40,18 @@ export class GameService {
   getStateSnapshot() {
     return this.gameState;
   }
-
+  async startNewRound() {
+    this.gameState = createInitialGameState();
+    await this.gameRepository.save({
+      id: this.gameState.id,
+      status: this.gameState.status,
+      createdAt: this.gameState.createdAt,
+    });
+    this.broadcastStateSync();
+  }
+  async onModuleInit() {
+    await this.startNewRound();
+  }
   async placeBet(placeBetInput: PlaceBetInput): Promise<void> {
     if (
       this.gameState.status !== GameStatus.WAITING_FOR_PLAYERS &&
@@ -183,8 +196,26 @@ export class GameService {
     this.gameState.coefficient = coefficient;
     this.eventEmitter.emit('coefficient_sync', coefficient);
   }
-  restartGame() {
-    this.gameState = createInitialGameState();
+  finishRound() {
+    const state = this.gameState;
+    state.finishedAt = new Date();
+    state.status = GameStatus.ENDED;
     this.broadcastStateSync();
+  }
+
+  async saveRoundResults() {
+    await AppDataSource.transaction(async (transactionalEntityManager) => {
+      const game = mapGameStateToGameUpdate(this.gameState);
+      const result = await transactionalEntityManager.update(
+        Game,
+        {
+          id: this.gameState.id,
+        },
+        { status: game.status, finishedAt: game.finishedAt },
+      );
+      if (result.affected != 1) {
+        throw wsError.gameNotFound();
+      }
+    });
   }
 }

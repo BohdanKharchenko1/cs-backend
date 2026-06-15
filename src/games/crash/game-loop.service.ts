@@ -48,8 +48,8 @@ export class GameLoopService {
   }
   startCrashTimer(crashTime: number) {
     this.crashTimer = setTimeout(() => {
-      this.crashTimer = null;
-      this.startCrashedPhase();
+      this.crashedTimer = null;
+      void this.startCrashedPhase();
     }, crashTime);
   }
   startCoefficientUpdates() {
@@ -59,15 +59,16 @@ export class GameLoopService {
       coefficient += 0.1;
     }, 100); // rewrite later to find the best update time
   }
-  startCrashedPhase() {
+  async startCrashedPhase() {
     if (this.coefficientTimer) {
       clearInterval(this.coefficientTimer);
       this.coefficientTimer = null;
     }
-    this.gameService.setGameStatus(GameStatus.ENDED);
+    this.gameService.finishRound();
+    await this.gameService.saveRoundResults();
 
     this.crashedTimer = setTimeout(() => {
-      this.gameService.restartGame();
+      void this.gameService.startNewRound();
       this.crashTimer = null;
     }, this.crashedDelay);
   }
