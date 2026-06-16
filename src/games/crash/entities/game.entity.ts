@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { GameStatus } from '../enums/game-status.enums';
 import { GameParticipant } from './game-participant.entity';
+import { GameType } from '../enums/game-type.enums';
 @Entity('games')
 export class Game extends BaseEntity {
   @PrimaryColumn('string')
@@ -17,6 +18,8 @@ export class Game extends BaseEntity {
     default: GameStatus.WAITING_FOR_PLAYERS,
   })
   status: GameStatus;
+  @Column({ type: 'enum', enum: GameType, nullable: true, default: null })
+  gameType: GameType | null;
   @OneToMany(() => GameParticipant, (gameParticipant) => gameParticipant.game)
   participants: GameParticipant[];
 }
